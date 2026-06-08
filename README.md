@@ -5,8 +5,12 @@ flower: a stem grows from the bottom of the screen and a procedural flower bloom
 at your pinch point. Flowers accumulate over the live webcam feed; press **C** to
 clear them.
 
-Built with Three.js (orthographic scene + GLSL flower shader) and MediaPipe Tasks
-Vision (`HandLandmarker`). No build step — vanilla ES modules via a CDN import map.
+The flowers are drawn with Ksenia Kondrashova's full-screen feedback shader
+(Three.js ping-pong render targets — each plant grows one flower at the pinch
+point while previously planted flowers persist in the feedback texture). A final
+display pass makes the empty background transparent so your webcam shows through.
+Hand tracking is MediaPipe Tasks Vision (`HandLandmarker`). No build step —
+vanilla ES modules via a CDN import map.
 
 ## Run
 
