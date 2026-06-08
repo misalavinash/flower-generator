@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import { flowerVertexShader, flowerFragmentShader } from './flowerShader.js';
+import { stemVertexShader, stemFragmentShader } from './stemShader.js';
+import { buildStemRibbon } from './stemGeometry.js';
 import { lifecycleAt, STATE } from './flowerLifecycle.js';
 
 // Tiny seeded PRNG (Lehmer) for stable per-flower randomization.
@@ -30,16 +32,44 @@ export class Flower {
     this.bottomY = bottomY;
     this.stemHeight = Math.max(0.001, this.targetY - this.bottomY);
 
-    // Stem: unit-height plane anchored at its base, scaled in y as it grows.
-    const stemGeo = new THREE.PlaneGeometry(0.06, 1);
-    stemGeo.translate(0, 0.5, 0); // base at y=0
-    const stemMat = new THREE.MeshBasicMaterial({
-      color: new THREE.Color().setHSL(0.33, 0.6, 0.4),
+    // Curved, tapered, slightly wavy stem (positions are in world coords —
+    // see stemGeometry.js). Offset is zero at the top so it meets the flower
+    // and sweeps out toward the base, with a fading noise wiggle.
+    const stemParams = {
+      x: this.x,
+      bottomY: this.bottomY,
+      targetY: this.targetY,
+      bend: (rand() - 0.5) * 0.18 * this.stemHeight, // random lean
+      wiggleAmp: 0.05 * this.stemHeight,
+      wiggleFreq: 4 + rand() * 5,
+      wigglePhase: rand() * Math.PI * 2,
+      wBase: 0.16, // half-width at base
+      wTip: 0.05,  // half-width near the flower
+    };
+    const ribbon = buildStemRibbon(stemParams, 48);
+    const stemGeo = new THREE.BufferGeometry();
+    stemGeo.setAttribute(
+      'position',
+      new THREE.BufferAttribute(new Float32Array(ribbon.positions), 3)
+    );
+    stemGeo.setAttribute(
+      'aT',
+      new THREE.BufferAttribute(new Float32Array(ribbon.ts), 1)
+    );
+    stemGeo.setIndex(ribbon.indices);
+
+    const stemHue = 0.30 + rand() * 0.06; // green with per-flower variation
+    this.stemMaterial = new THREE.ShaderMaterial({
+      vertexShader: stemVertexShader,
+      fragmentShader: stemFragmentShader,
       transparent: true,
+      uniforms: {
+        uGrow: { value: 0 },
+        uColorBase: { value: new THREE.Color().setHSL(stemHue, 0.65, 0.28) },
+        uColorTip: { value: new THREE.Color().setHSL(stemHue + 0.02, 0.7, 0.5) },
+      },
     });
-    this.stem = new THREE.Mesh(stemGeo, stemMat);
-    this.stem.position.set(this.x, this.bottomY, 0);
-    this.stem.scale.y = 0.0001;
+    this.stem = new THREE.Mesh(stemGeo, this.stemMaterial); // world-space, no offset
     this.group.add(this.stem);
 
     // Flower head: shader plane at the target point.
@@ -66,7 +96,7 @@ export class Flower {
   update(dt) {
     this.elapsed += dt;
     const { stemProgress, bloom, state } = lifecycleAt(this.elapsed);
-    this.stem.scale.y = Math.max(0.0001, this.stemHeight * stemProgress);
+    this.stemMaterial.uniforms.uGrow.value = stemProgress;
     if (state === STATE.GROWING) {
       this.head.visible = false;
     } else {
