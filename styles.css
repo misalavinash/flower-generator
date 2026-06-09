@@ -44,41 +44,116 @@ html, body {
 
 .hidden { display: none !important; }
 
-/* Opt-in consent / privacy overlay shown before the camera is touched. */
+/* ───────────── Opt-in consent / privacy overlay (editorial botanical) ───────────── */
 #intro {
   position: fixed; inset: 0; z-index: 10;
   display: flex; align-items: center; justify-content: center;
-  background: rgba(10, 12, 14, 0.92);
   padding: 24px;
+  background: #0b0910;
+  overflow: hidden;
 }
+/* Soft drifting floral light-blooms in the flower palette. */
+.intro-bg {
+  position: absolute; inset: -25%;
+  background:
+    radial-gradient(38% 48% at 24% 30%, rgba(255, 77, 157, 0.38), transparent 70%),
+    radial-gradient(42% 52% at 80% 26%, rgba(160, 107, 255, 0.32), transparent 70%),
+    radial-gradient(48% 58% at 62% 88%, rgba(255, 178, 77, 0.24), transparent 72%);
+  filter: blur(26px) saturate(125%);
+  animation: introDrift 26s ease-in-out infinite alternate;
+}
+@keyframes introDrift {
+  0%   { transform: translate3d(-2%, -1%, 0) scale(1.00); }
+  100% { transform: translate3d(2.5%, 2%, 0) scale(1.09); }
+}
+/* Fine grain for atmosphere. */
+#intro::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.05; mix-blend-mode: overlay;
+}
+
 .intro-card {
-  max-width: 520px; width: 100%;
-  background: #1b1e22; color: #f0f0f0;
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 14px;
-  padding: 28px 30px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  position: relative; z-index: 1;
+  max-width: 540px; width: 100%;
+  padding: 42px 44px 32px;
+  border-radius: 24px;
+  color: #ece9f1;
+  background: linear-gradient(180deg, rgba(30, 25, 37, 0.72), rgba(17, 14, 22, 0.84));
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: 0 40px 90px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.07);
 }
-.intro-card h1 { font-size: 26px; margin-bottom: 6px; }
-.intro-tagline { font-size: 15px; color: #cfd3d8; line-height: 1.5; margin-bottom: 18px; }
-.intro-privacy { font-size: 14px; line-height: 1.55; color: #cfd3d8; }
-.intro-privacy ul { margin: 8px 0 0; padding-left: 20px; }
-.intro-privacy li { margin-bottom: 8px; }
-.intro-privacy a { color: #8ad0ff; }
-.intro-buttons { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 22px; }
+
+.intro-kicker {
+  display: flex; align-items: center;
+  font: 600 12px/1 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: 0.24em; text-transform: uppercase;
+  color: #ff9bc4; margin-bottom: 20px;
+}
+
+.intro-title {
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  font-weight: 600; font-size: clamp(42px, 7vw, 60px);
+  line-height: 0.98; letter-spacing: -0.015em; margin-bottom: 18px;
+  background: linear-gradient(100deg, #ffd9a8 0%, #ff6aa9 46%, #b98cff 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.intro-title em { font-style: italic; }
+
+.intro-tagline {
+  font: 400 17px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: #d6d1de; max-width: 44ch; margin-bottom: 28px;
+}
+
+.intro-privacy { display: grid; gap: 11px; margin-bottom: 30px; }
+.intro-privacy p {
+  display: flex; gap: 11px; align-items: baseline;
+  font: 400 13.5px/1.5 ui-sans-serif, system-ui, sans-serif; color: #a7a2b2;
+}
+.intro-privacy strong { color: #ece9f1; font-weight: 600; }
+.intro-privacy a { color: #ffa6cd; text-underline-offset: 3px; }
+.intro-privacy .dot {
+  flex: none; width: 6px; height: 6px; margin-top: 7px; border-radius: 50%;
+  background: linear-gradient(180deg, #ff6aa9, #b98cff);
+}
+
+.intro-buttons { display: flex; gap: 12px; flex-wrap: wrap; }
 .intro-buttons button {
-  flex: 1 1 auto; min-width: 160px;
-  padding: 12px 18px; border-radius: 999px; border: 0;
-  font-size: 15px; font-weight: 600; cursor: pointer;
-  background: #ff5da2; color: #fff;
-  transition: filter .15s ease;
+  flex: 1 1 auto; min-width: 168px;
+  padding: 14px 22px; border-radius: 999px; border: 0;
+  font: 600 15px/1 ui-sans-serif, system-ui, sans-serif; cursor: pointer;
 }
-.intro-buttons button:hover { filter: brightness(1.08); }
-.intro-buttons button.secondary {
-  background: transparent; color: #cfd3d8;
-  border: 1px solid rgba(255,255,255,0.25); font-weight: 500;
+#start-btn {
+  color: #2a0f1c;
+  background: linear-gradient(100deg, #ffd9a8, #ff6aa9 55%, #b98cff);
+  box-shadow: 0 10px 30px rgba(255, 106, 169, 0.35);
+  transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
 }
-.intro-foot { margin-top: 16px; font-size: 12px; color: #8b9097; }
+#start-btn:hover { transform: translateY(-2px); box-shadow: 0 16px 42px rgba(255, 106, 169, 0.5); filter: brightness(1.04); }
+.intro-buttons .secondary {
+  background: transparent; color: #d6d1de; font-weight: 500;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  transition: border-color .15s ease, background .15s ease;
+}
+.intro-buttons .secondary:hover { border-color: rgba(255, 255, 255, 0.5); background: rgba(255, 255, 255, 0.05); }
+.intro-card button:focus-visible { outline: 2px solid #ffa6cd; outline-offset: 3px; }
+
+.intro-foot { margin-top: 18px; font: 400 12px/1.5 ui-sans-serif, system-ui, sans-serif; color: #6f6b7a; }
+
+/* Orchestrated staggered load-in. */
+.intro-card > * { opacity: 0; transform: translateY(10px); animation: introIn .6s cubic-bezier(.2, .7, .2, 1) forwards; }
+.intro-kicker  { animation-delay: .05s; }
+.intro-title   { animation-delay: .12s; }
+.intro-tagline { animation-delay: .20s; }
+.intro-privacy { animation-delay: .28s; }
+.intro-buttons { animation-delay: .36s; }
+.intro-foot    { animation-delay: .44s; }
+@keyframes introIn { to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .intro-bg { animation: none; }
+  .intro-card > * { animation: none; opacity: 1; transform: none; }
+}
 
 #status {
   position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
