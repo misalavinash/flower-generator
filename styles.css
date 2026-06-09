@@ -42,6 +42,44 @@ html, body {
 }
 .credit:hover { opacity: .9; }
 
+.hidden { display: none !important; }
+
+/* Opt-in consent / privacy overlay shown before the camera is touched. */
+#intro {
+  position: fixed; inset: 0; z-index: 10;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(10, 12, 14, 0.92);
+  padding: 24px;
+}
+.intro-card {
+  max-width: 520px; width: 100%;
+  background: #1b1e22; color: #f0f0f0;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 28px 30px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.intro-card h1 { font-size: 26px; margin-bottom: 6px; }
+.intro-tagline { font-size: 15px; color: #cfd3d8; line-height: 1.5; margin-bottom: 18px; }
+.intro-privacy { font-size: 14px; line-height: 1.55; color: #cfd3d8; }
+.intro-privacy ul { margin: 8px 0 0; padding-left: 20px; }
+.intro-privacy li { margin-bottom: 8px; }
+.intro-privacy a { color: #8ad0ff; }
+.intro-buttons { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 22px; }
+.intro-buttons button {
+  flex: 1 1 auto; min-width: 160px;
+  padding: 12px 18px; border-radius: 999px; border: 0;
+  font-size: 15px; font-weight: 600; cursor: pointer;
+  background: #ff5da2; color: #fff;
+  transition: filter .15s ease;
+}
+.intro-buttons button:hover { filter: brightness(1.08); }
+.intro-buttons button.secondary {
+  background: transparent; color: #cfd3d8;
+  border: 1px solid rgba(255,255,255,0.25); font-weight: 500;
+}
+.intro-foot { margin-top: 16px; font-size: 12px; color: #8b9097; }
+
 #status {
   position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
   z-index: 2;

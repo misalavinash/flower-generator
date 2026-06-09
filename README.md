@@ -27,7 +27,22 @@ No camera? Click anywhere to plant a flower instead.
 ## Controls
 
 - **Pinch (thumb + index):** plant a flower
+- **Two-hand heart (🫶):** clear the screen and bloom a heart of flowers
 - **C:** clear all flowers
+
+## Privacy
+
+The camera is never accessed until you opt in on the start screen.
+
+- Everything runs **in your browser**. Your camera video is used only for hand
+  tracking and **never leaves your device** — no frames are uploaded, recorded,
+  or stored.
+- No accounts, no cookies, no analytics, no tracking.
+- Hand tracking runs locally (MediaPipe, via WebAssembly). The only outside
+  requests are one-time downloads of the Three.js + MediaPipe libraries/model
+  from public CDNs (esm.sh, jsDelivr, Google storage).
+- You can also use it **without the camera** (click to plant), and you can
+  revoke camera access anytime in your browser's site settings.
 
 ## Develop / test
 

@@ -19,6 +19,9 @@ const canvas = document.getElementById('canvas');
 const video = document.getElementById('cam');
 const statusEl = document.getElementById('status');
 const cleanBtn = document.querySelector('.clean-btn');
+const introEl = document.getElementById('intro');
+const startBtn = document.getElementById('start-btn');
+const nocamBtn = document.getElementById('nocam-btn');
 
 const sketch = new FlowerSketch(canvas);
 sketch.start();
@@ -108,13 +111,14 @@ function trackLoop() {
   requestAnimationFrame(trackLoop);
 }
 
-async function main() {
+// The camera is only touched after the visitor opts in from the intro screen.
+async function startWithCamera() {
+  introEl.classList.add('hidden');
   try {
     statusEl.textContent = 'Loading camera + hand model…';
     await tracking.init();
     statusEl.textContent =
       'Pinch 🤏 to plant a flower • two-hand 🫶 to bloom a heart • C to clear.';
-    
     trackLoop();
   } catch (err) {
     console.error(err);
@@ -124,4 +128,11 @@ async function main() {
   }
 }
 
-main();
+function startWithoutCamera() {
+  introEl.classList.add('hidden');
+  // getUserMedia is never called; click-to-plant still works.
+  statusEl.textContent = 'Camera off — click anywhere to plant a flower • C to clear.';
+}
+
+startBtn.addEventListener('click', startWithCamera);
+nocamBtn.addEventListener('click', startWithoutCamera);
