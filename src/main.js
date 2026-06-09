@@ -119,17 +119,14 @@ const NOCAM_MSG = 'Camera off — click anywhere to plant a flower • C to clea
 let cameraOn = false;
 let loopRunning = false;
 
-/* ── Landing-page demo: bloom random flowers in the margins beside the card
-   while the intro is open. A steady per-frame fade keeps ~DEMO_MAX_FLOWERS
-   alive at once — new ones appear while the oldest quietly fade out (a soft
-   cap, not a hard integer count). Cleared when the visitor picks a mode. */
+/* ── Landing-page demo: bloom flowers in the empty margins beside the card
+   while the intro is open. Flowers accumulate (crisp, no fade) up to
+   DEMO_MAX_FLOWERS, then planting stops. Cleared when the visitor picks a mode. */
 const DEMO_MAX_FLOWERS = 10;
 const DEMO_PLANT_INTERVAL = 800; // ms between demo flowers
-const DEMO_LIFETIME_S = (DEMO_MAX_FLOWERS * DEMO_PLANT_INTERVAL) / 1000;
-// Per-frame fade so a flower is ~gone after DEMO_MAX_FLOWERS newer ones appear.
-const DEMO_FADE = Math.pow(0.05, 1 / (DEMO_LIFETIME_S * 60));
 
 let demoTimer = null;
+let demoCount = 0;
 
 // A random point in the empty columns to the left/right of the centered card.
 function marginPoint() {
@@ -151,15 +148,18 @@ function marginPoint() {
 
 function startDemo() {
   if (demoTimer) return;
-  sketch.fade = DEMO_FADE;
-  const tick = () => { const p = marginPoint(); if (p) sketch.plant(p.x, p.y); };
+  demoCount = 0;
+  const tick = () => {
+    if (demoCount >= DEMO_MAX_FLOWERS) { stopDemo(); return; } // cap reached
+    const p = marginPoint();
+    if (p) { sketch.plant(p.x, p.y); demoCount += 1; }
+  };
   tick(); // bloom the first one right away
   demoTimer = setInterval(tick, DEMO_PLANT_INTERVAL);
 }
 
 function stopDemo() {
   if (demoTimer) { clearInterval(demoTimer); demoTimer = null; }
-  sketch.fade = 1; // flowers persist again during the real session
 }
 
 // The camera is only touched after the visitor opts in from the intro screen.
@@ -167,6 +167,7 @@ async function startWithCamera() {
   stopDemo();
   introEl.classList.add('hidden');
   modeBtn.classList.remove('hidden');
+  statusEl.classList.remove('hidden');
   if (cameraOn) {                 // resuming an existing session
     statusEl.textContent = GESTURE_MSG;
     loopRunning = true;
@@ -193,6 +194,7 @@ function startWithoutCamera() {
   stopDemo();
   introEl.classList.add('hidden');
   modeBtn.classList.remove('hidden');
+  statusEl.classList.remove('hidden');
   loopRunning = false;
   if (cameraOn) {                 // turn the camera off if it was running
     tracking.stop();
@@ -207,6 +209,7 @@ nocamBtn.addEventListener('click', startWithoutCamera);
 // Reopen the chooser to switch modes; pause gestures and resume the demo.
 modeBtn.addEventListener('click', () => {
   loopRunning = false;
+  statusEl.classList.add('hidden');
   introEl.classList.remove('hidden');
   startDemo();
 });

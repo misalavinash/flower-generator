@@ -8,10 +8,6 @@ import * as THREE from 'three';
 export class FlowerSketch {
   constructor(canvas) {
     this.pointer = { x: 0.5, y: 0.5, clicked: false, vanishCanvas: false };
-    // Steady per-frame multiplier on the accumulated flowers. 1 = persist
-    // forever; slightly < 1 makes older flowers gently fade out (used by the
-    // landing-page demo so the margins hold ~a fixed number of flowers).
-    this.fade = 1;
 
     this.renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -89,7 +85,7 @@ export class FlowerSketch {
 
   start() {
     const render = () => {
-      this.shaderMaterial.uniforms.u_clean.value = this.pointer.vanishCanvas ? 0 : this.fade;
+      this.shaderMaterial.uniforms.u_clean.value = this.pointer.vanishCanvas ? 0 : 1;
       this.shaderMaterial.uniforms.u_texture.value = this.renderTargets[0].texture;
 
       if (this.pointer.clicked) {
