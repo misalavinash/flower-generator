@@ -19,10 +19,18 @@ export class HeartDetector {
   }
 
   // hands: array of hands, each a 21-entry landmark array of {x,y}.
+  // Always returns diagnostics (count, indexDist, thumbDist, orient) so the
+  // gesture can be observed even when it isn't firing.
   update(hands) {
+    const count = Array.isArray(hands) ? hands.filter(Boolean).length : 0;
+    const miss = {
+      isHeart: false, justFormed: false,
+      count, indexDist: null, thumbDist: null, orient: false,
+    };
+
     if (!hands || hands.length < 2 || !hands[0] || !hands[1]) {
       this.active = false;
-      return { isHeart: false, justFormed: false };
+      return miss;
     }
     const a = hands[0];
     const b = hands[1];
@@ -32,22 +40,23 @@ export class HeartDetector {
     const bI = b[INDEX_TIP];
     if (!aT || !aI || !bT || !bI) {
       this.active = false;
-      return { isHeart: false, justFormed: false };
+      return miss;
     }
 
     const indexDist = distance2D(aI, bI);
     const thumbDist = distance2D(aT, bT);
     const indexMidY = (aI.y + bI.y) / 2;
     const thumbMidY = (aT.y + bT.y) / 2;
+    const orient = indexMidY < thumbMidY; // index tips above thumb tips
 
     const isHeart =
       indexDist < this.indexThreshold &&
       thumbDist < this.thumbThreshold &&
-      indexMidY < thumbMidY; // index tips above thumb tips
+      orient;
 
     if (!isHeart) {
       this.active = false;
-      return { isHeart: false, justFormed: false };
+      return { isHeart: false, justFormed: false, count, indexDist, thumbDist, orient };
     }
 
     const justFormed = !this.active;
@@ -63,6 +72,6 @@ export class HeartDetector {
     const h = Math.max(...ys) - Math.min(...ys);
     const size = Math.min(0.3, Math.max(0.08, this.sizeFactor * 0.5 * Math.max(w, h)));
 
-    return { isHeart: true, justFormed, center, size };
+    return { isHeart: true, justFormed, count, indexDist, thumbDist, orient, center, size };
   }
 }

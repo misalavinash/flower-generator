@@ -16,6 +16,9 @@ const canvas = document.getElementById('canvas');
 const video = document.getElementById('cam');
 const statusEl = document.getElementById('status');
 const cleanBtn = document.querySelector('.clean-btn');
+const debugEl = document.getElementById('debug');
+
+const fmt = (v) => (v === null || v === undefined ? '—' : v.toFixed(3));
 
 const sketch = new FlowerSketch(canvas);
 sketch.start();
@@ -77,9 +80,20 @@ window.addEventListener('keydown', (e) => {
 
 const tracking = new HandTracking(video);
 
+function updateDebug(h) {
+  const thr = heart.indexThreshold;
+  debugEl.textContent =
+    `hands:  ${h.count}\n` +
+    `indexΔ: ${fmt(h.indexDist)}  (< ${thr} ${h.indexDist !== null && h.indexDist < thr ? '✓' : '✗'})\n` +
+    `thumbΔ: ${fmt(h.thumbDist)}  (< ${heart.thumbThreshold} ${h.thumbDist !== null && h.thumbDist < heart.thumbThreshold ? '✓' : '✗'})\n` +
+    `orient: ${h.orient ? '✓' : '✗'}\n` +
+    `HEART:  ${h.isHeart ? 'YES' : 'no'}`;
+}
+
 function trackLoop() {
   const hands = tracking.detect(performance.now());
   const h = heart.update(hands);
+  updateDebug(h);
 
   if (h.justFormed && !heartActive) {
     startHeart(h.center, h.size);

@@ -64,6 +64,20 @@ test('one hand (or none) is never a heart', () => {
   assert.equal(d.update(null).isHeart, false);
 });
 
+test('always reports diagnostics (hand count + tip distances + orientation)', () => {
+  const d = new HeartDetector();
+  const m = d.update(heartPose());
+  assert.equal(m.count, 2);
+  assert.ok(m.indexDist >= 0);
+  assert.ok(m.thumbDist >= 0);
+  assert.equal(typeof m.orient, 'boolean');
+
+  const none = d.update([]);
+  assert.equal(none.count, 0);
+  assert.equal(none.indexDist, null);
+  assert.equal(none.thumbDist, null);
+});
+
 test('re-arming: fires again after the heart is released and reformed', () => {
   const d = new HeartDetector();
   assert.equal(d.update(heartPose()).justFormed, true);
