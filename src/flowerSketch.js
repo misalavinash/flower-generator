@@ -29,7 +29,10 @@ export class FlowerSketch {
 
     this.shaderMaterial = new THREE.ShaderMaterial({
       uniforms: {
-        u_stop_time: { value: 0 },
+        // Start past the bloom window (>1) so no flower is drawn until the
+        // first plant resets this to 0. Otherwise a flower blooms at the
+        // default centered cursor on page load.
+        u_stop_time: { value: 10 },
         u_stop_randomizer: {
           value: new THREE.Vector2(Math.random(), Math.random()),
         },
