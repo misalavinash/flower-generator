@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Flower Generator</title>
   <meta name="author" content="@misalships (https://www.misalavinash.com)" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Ctext%20x='16'%20y='25'%20font-size='26'%20text-anchor='middle'%20fill='%23ff5da2'%3E%E2%9C%BF%3C/text%3E%3C/svg%3E" />
   <link rel="stylesheet" href="styles.css" />
   <script type="importmap">
   {
@@ -190,6 +191,7 @@
   <video id="cam" autoplay playsinline muted></video>
   <canvas id="canvas"></canvas>
   <div class="clean-btn">clean the screen</div>
+  <button id="mode-btn" type="button" class="hidden">↩ change</button>
   <div id="status">Loading…</div>
   <a class="credit" href="https://www.misalavinash.com" target="_blank" rel="noopener noreferrer">@misalships</a>
 
@@ -200,10 +202,10 @@
       <h1 class="intro-title">Flower <em>Generator</em></h1>
       <p class="intro-tagline">Reach into your camera and watch flowers bloom from your fingertips — a living garden you grow in mid-air, in real time.</p>
 
-      <div class="intro-privacy">
-        <p><span class="dot"></span>Runs entirely in your browser. Your camera video is used only for hand tracking and <strong>never leaves your device</strong>.</p>
-        <p><span class="dot"></span>Open source — <a href="https://github.com/misalships/flower-generator" target="_blank" rel="noopener noreferrer">read every line</a>.</p>
-      </div>
+      <ul class="intro-privacy">
+        <li>Your camera video stays on your device — it’s read in the browser for hand tracking, and never uploaded or stored.</li>
+        <li>Open source — <a href="https://github.com/misalships/flower-generator" target="_blank" rel="noopener noreferrer">read every line</a>.</li>
+      </ul>
 
       <div class="intro-buttons">
         <button id="start-btn" type="button">Start camera</button>

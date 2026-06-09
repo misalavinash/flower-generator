@@ -52,15 +52,14 @@ html, body {
   background: #0b0910;
   overflow: hidden;
 }
-/* Soft drifting floral light-blooms in the flower palette. */
+/* Restrained drifting glow — mostly one warm rose, a hint of violet. */
 .intro-bg {
   position: absolute; inset: -25%;
   background:
-    radial-gradient(38% 48% at 24% 30%, rgba(255, 77, 157, 0.38), transparent 70%),
-    radial-gradient(42% 52% at 80% 26%, rgba(160, 107, 255, 0.32), transparent 70%),
-    radial-gradient(48% 58% at 62% 88%, rgba(255, 178, 77, 0.24), transparent 72%);
-  filter: blur(26px) saturate(125%);
-  animation: introDrift 26s ease-in-out infinite alternate;
+    radial-gradient(45% 55% at 28% 32%, rgba(255, 105, 160, 0.20), transparent 72%),
+    radial-gradient(50% 60% at 78% 72%, rgba(150, 110, 220, 0.14), transparent 74%);
+  filter: blur(40px) saturate(115%);
+  animation: introDrift 28s ease-in-out infinite alternate;
 }
 @keyframes introDrift {
   0%   { transform: translate3d(-2%, -1%, 0) scale(1.00); }
@@ -75,71 +74,86 @@ html, body {
 
 .intro-card {
   position: relative; z-index: 1;
-  max-width: 540px; width: 100%;
-  padding: 42px 44px 32px;
-  border-radius: 24px;
-  color: #ece9f1;
-  background: linear-gradient(180deg, rgba(30, 25, 37, 0.72), rgba(17, 14, 22, 0.84));
-  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  box-shadow: 0 40px 90px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  max-width: 500px; width: 100%;
+  padding: 44px 46px 34px;
+  border-radius: 20px;
+  color: #efeae4;
+  /* Stronger, cleaner glass. */
+  background: rgba(20, 17, 23, 0.55);
+  -webkit-backdrop-filter: blur(28px) saturate(130%); backdrop-filter: blur(28px) saturate(130%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .intro-kicker {
   display: flex; align-items: center;
-  font: 600 12px/1 ui-sans-serif, system-ui, sans-serif;
-  letter-spacing: 0.24em; text-transform: uppercase;
-  color: #ff9bc4; margin-bottom: 20px;
+  font: 600 11px/1 ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: 0.26em; text-transform: uppercase;
+  color: #e79bbb; margin-bottom: 22px;
 }
 
+/* Solid, editorial title — one rose accent, no rainbow gradient. */
 .intro-title {
   font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
-  font-weight: 600; font-size: clamp(42px, 7vw, 60px);
-  line-height: 0.98; letter-spacing: -0.015em; margin-bottom: 18px;
-  background: linear-gradient(100deg, #ffd9a8 0%, #ff6aa9 46%, #b98cff 100%);
-  -webkit-background-clip: text; background-clip: text; color: transparent;
+  font-weight: 600; font-size: clamp(44px, 7vw, 62px);
+  line-height: 0.96; letter-spacing: -0.02em; margin-bottom: 20px;
+  color: #f3ede6;
 }
-.intro-title em { font-style: italic; }
+.intro-title em { font-style: italic; color: #ff7faf; }
 
 .intro-tagline {
-  font: 400 17px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  color: #d6d1de; max-width: 44ch; margin-bottom: 28px;
+  font: 400 17px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: #cdc7d0; max-width: 42ch; margin-bottom: 30px;
 }
 
-.intro-privacy { display: grid; gap: 11px; margin-bottom: 30px; }
-.intro-privacy p {
-  display: flex; gap: 11px; align-items: baseline;
-  font: 400 13.5px/1.5 ui-sans-serif, system-ui, sans-serif; color: #a7a2b2;
+/* Privacy as a clean list — text flows normally (no flexbox line-breaking). */
+.intro-privacy { list-style: none; display: grid; gap: 12px; margin-bottom: 32px; }
+.intro-privacy li {
+  position: relative; padding-left: 18px;
+  font: 400 13.5px/1.55 ui-sans-serif, system-ui, sans-serif; color: #9d98a6;
 }
-.intro-privacy strong { color: #ece9f1; font-weight: 600; }
+.intro-privacy li::before {
+  content: ""; position: absolute; left: 0; top: 8px;
+  width: 5px; height: 5px; border-radius: 50%; background: #ff7faf;
+}
 .intro-privacy a { color: #ffa6cd; text-underline-offset: 3px; }
-.intro-privacy .dot {
-  flex: none; width: 6px; height: 6px; margin-top: 7px; border-radius: 50%;
-  background: linear-gradient(180deg, #ff6aa9, #b98cff);
-}
 
 .intro-buttons { display: flex; gap: 12px; flex-wrap: wrap; }
 .intro-buttons button {
   flex: 1 1 auto; min-width: 168px;
-  padding: 14px 22px; border-radius: 999px; border: 0;
+  padding: 14px 22px; border-radius: 12px; border: 0;
   font: 600 15px/1 ui-sans-serif, system-ui, sans-serif; cursor: pointer;
 }
+/* Single warm rose — solid, no multi-hue sweep. */
 #start-btn {
-  color: #2a0f1c;
-  background: linear-gradient(100deg, #ffd9a8, #ff6aa9 55%, #b98cff);
-  box-shadow: 0 10px 30px rgba(255, 106, 169, 0.35);
-  transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+  color: #2a0e1b;
+  background: #ff6aa1;
+  box-shadow: 0 6px 20px rgba(255, 106, 161, 0.25);
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
 }
-#start-btn:hover { transform: translateY(-2px); box-shadow: 0 16px 42px rgba(255, 106, 169, 0.5); filter: brightness(1.04); }
+#start-btn:hover { transform: translateY(-1px); background: #ff7dad; box-shadow: 0 10px 26px rgba(255, 106, 161, 0.38); }
 .intro-buttons .secondary {
-  background: transparent; color: #d6d1de; font-weight: 500;
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.04); color: #cdc7d0; font-weight: 500;
+  border: 1px solid rgba(255, 255, 255, 0.16);
   transition: border-color .15s ease, background .15s ease;
 }
-.intro-buttons .secondary:hover { border-color: rgba(255, 255, 255, 0.5); background: rgba(255, 255, 255, 0.05); }
+.intro-buttons .secondary:hover { border-color: rgba(255, 255, 255, 0.34); background: rgba(255, 255, 255, 0.08); }
 .intro-card button:focus-visible { outline: 2px solid #ffa6cd; outline-offset: 3px; }
 
-.intro-foot { margin-top: 18px; font: 400 12px/1.5 ui-sans-serif, system-ui, sans-serif; color: #6f6b7a; }
+.intro-foot { margin-top: 18px; font: 400 12px/1.5 ui-sans-serif, system-ui, sans-serif; color: #6b6774; }
+
+/* Small "change mode" control shown after a choice is made. */
+#mode-btn {
+  position: fixed; left: 25px; top: 18px; z-index: 4;
+  padding: 7px 14px; border-radius: 999px;
+  font: 500 13px/1 ui-sans-serif, system-ui, sans-serif;
+  color: #fff; background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  text-shadow: 0 0 8px #000; cursor: pointer;
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  transition: background .15s ease, border-color .15s ease;
+}
+#mode-btn:hover { background: rgba(0, 0, 0, 0.65); border-color: rgba(255, 255, 255, 0.4); }
 
 /* Orchestrated staggered load-in. */
 .intro-card > * { opacity: 0; transform: translateY(10px); animation: introIn .6s cubic-bezier(.2, .7, .2, 1) forwards; }

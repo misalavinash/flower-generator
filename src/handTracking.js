@@ -9,23 +9,37 @@ export class HandTracking {
   }
 
   async init() {
-    const vision = await FilesetResolver.forVisionTasks(
-      'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm'
-    );
-    this.landmarker = await HandLandmarker.createFromOptions(vision, {
-      baseOptions: {
-        modelAssetPath:
-          'https://storage.googleapis.com/mediapipe-models/hand_landmarker/' +
-          'hand_landmarker/float16/1/hand_landmarker.task',
-        delegate: 'GPU',
-      },
-      runningMode: 'VIDEO',
-      numHands: 2,
-    });
+    // Build the landmarker once; reuse it across stop/restart cycles.
+    if (!this.landmarker) {
+      const vision = await FilesetResolver.forVisionTasks(
+        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm'
+      );
+      this.landmarker = await HandLandmarker.createFromOptions(vision, {
+        baseOptions: {
+          modelAssetPath:
+            'https://storage.googleapis.com/mediapipe-models/hand_landmarker/' +
+            'hand_landmarker/float16/1/hand_landmarker.task',
+          delegate: 'GPU',
+        },
+        runningMode: 'VIDEO',
+        numHands: 2,
+      });
+    }
 
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
     this.video.srcObject = stream;
     await this.video.play();
+  }
+
+  // Turn the camera off (stops the stream + the recording indicator).
+  stop() {
+    const stream = this.video.srcObject;
+    if (stream) {
+      for (const track of stream.getTracks()) track.stop();
+      this.video.srcObject = null;
+    }
+    this.lastVideoTime = -1;
+    this.lastHands = [];
   }
 
   // Returns an array of detected hands (0..2), each a 21-entry landmark array

@@ -22,6 +22,7 @@ const cleanBtn = document.querySelector('.clean-btn');
 const introEl = document.getElementById('intro');
 const startBtn = document.getElementById('start-btn');
 const nocamBtn = document.getElementById('nocam-btn');
+const modeBtn = document.getElementById('mode-btn');
 
 const sketch = new FlowerSketch(canvas);
 sketch.start();
@@ -83,6 +84,7 @@ window.addEventListener('keydown', (e) => {
 const tracking = new HandTracking(video);
 
 function trackLoop() {
+  if (!loopRunning) return; // stops cleanly when the camera is turned off
   const hands = tracking.detect(performance.now());
   const h = heart.update(hands);
 
@@ -111,14 +113,21 @@ function trackLoop() {
   requestAnimationFrame(trackLoop);
 }
 
+let cameraOn = false;
+let loopRunning = false;
+
 // The camera is only touched after the visitor opts in from the intro screen.
 async function startWithCamera() {
   introEl.classList.add('hidden');
+  modeBtn.classList.remove('hidden');
+  if (cameraOn) return; // already running (re-chosen from the intro)
   try {
     statusEl.textContent = 'Loading camera + hand model…';
     await tracking.init();
+    cameraOn = true;
     statusEl.textContent =
       'Pinch 🤏 to plant a flower • two-hand 🫶 to bloom a heart • C to clear.';
+    loopRunning = true;
     trackLoop();
   } catch (err) {
     console.error(err);
@@ -130,9 +139,17 @@ async function startWithCamera() {
 
 function startWithoutCamera() {
   introEl.classList.add('hidden');
-  // getUserMedia is never called; click-to-plant still works.
+  modeBtn.classList.remove('hidden');
+  // Turn the camera off if it was running, and stop processing frames.
+  loopRunning = false;
+  if (cameraOn) {
+    tracking.stop();
+    cameraOn = false;
+  }
   statusEl.textContent = 'Camera off — click anywhere to plant a flower • C to clear.';
 }
 
 startBtn.addEventListener('click', startWithCamera);
 nocamBtn.addEventListener('click', startWithoutCamera);
+// Reopen the chooser to switch between camera / no-camera.
+modeBtn.addEventListener('click', () => introEl.classList.remove('hidden'));
