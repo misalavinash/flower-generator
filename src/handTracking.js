@@ -5,7 +5,7 @@ export class HandTracking {
     this.video = video;
     this.landmarker = null;
     this.lastVideoTime = -1;
-    this.lastLandmarks = null;
+    this.lastHands = [];
   }
 
   async init() {
@@ -20,7 +20,7 @@ export class HandTracking {
         delegate: 'GPU',
       },
       runningMode: 'VIDEO',
-      numHands: 1,
+      numHands: 2,
     });
 
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -28,16 +28,14 @@ export class HandTracking {
     await this.video.play();
   }
 
-  // Returns the first hand's 21 landmarks (array of {x,y,z}) or null.
+  // Returns an array of detected hands (0..2), each a 21-entry landmark array
+  // of {x,y,z}.
   detect(timestampMs) {
-    if (!this.landmarker || this.video.readyState < 2) return null;
-    if (this.video.currentTime === this.lastVideoTime) return this.lastLandmarks;
+    if (!this.landmarker || this.video.readyState < 2) return [];
+    if (this.video.currentTime === this.lastVideoTime) return this.lastHands;
     this.lastVideoTime = this.video.currentTime;
     const result = this.landmarker.detectForVideo(this.video, timestampMs);
-    this.lastLandmarks =
-      result.landmarks && result.landmarks.length > 0
-        ? result.landmarks[0]
-        : null;
-    return this.lastLandmarks;
+    this.lastHands = result.landmarks || [];
+    return this.lastHands;
   }
 }

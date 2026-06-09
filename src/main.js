@@ -1,10 +1,16 @@
 import { FlowerSketch } from './flowerSketch.js';
 import { HandTracking } from './handTracking.js';
 import { PinchDetector } from './pinchDetector.js';
+import { HeartDetector } from './heartDetector.js';
+import { heartPoints } from './heartShape.js';
 import { mirrorX } from './coords.js';
 
 const THUMB_TIP = 4;
 const INDEX_TIP = 8;
+
+const HEART_FLOWER_COUNT = 16;     // flowers around the heart outline
+const HEART_PLANT_INTERVAL = 380;  // ms between flowers (each needs time to bloom)
+const CLEAN_DELAY = 90;            // ms to wait after clean() before planting
 
 const canvas = document.getElementById('canvas');
 const video = document.getElementById('cam');
@@ -15,35 +21,88 @@ const sketch = new FlowerSketch(canvas);
 sketch.start();
 
 const pinch = new PinchDetector();
+const heart = new HeartDetector();
+
+// Flowers are planted one-per-interval (the shader grows one flower at a time),
+// so the heart formation blooms point-by-point.
+const plantQueue = [];
+let heartActive = false; // a heart formation is being planted right now
+let lastPlantTime = 0;
+
+function pumpQueue() {
+  if (plantQueue.length > 0) {
+    const now = performance.now();
+    if (now - lastPlantTime >= HEART_PLANT_INTERVAL) {
+      const p = plantQueue.shift();
+      sketch.plant(p.x, p.y);
+      lastPlantTime = now;
+      if (plantQueue.length === 0) heartActive = false;
+    }
+  }
+  requestAnimationFrame(pumpQueue);
+}
+requestAnimationFrame(pumpQueue);
+
+function startHeart(centerRaw, size) {
+  heartActive = true;
+  sketch.clean(); // wipe every other flower first
+  // Mirror x to match the selfie view; the heart sits where the hands are.
+  const cx = mirrorX(centerRaw.x);
+  const cy = centerRaw.y;
+  // Begin planting just after the clean wipe so the first flowers aren't erased.
+  setTimeout(() => {
+    lastPlantTime = 0; // plant the first one immediately
+    for (const p of heartPoints(cx, cy, size, HEART_FLOWER_COUNT)) {
+      plantQueue.push(p);
+    }
+  }, CLEAN_DELAY);
+}
+
+function clearAll() {
+  plantQueue.length = 0;
+  heartActive = false;
+  sketch.clean();
+}
 
 // Fallback when there's no camera: click to plant a flower.
 canvas.addEventListener('click', (e) => {
+  if (heartActive) return;
   sketch.plant(e.clientX / window.innerWidth, e.clientY / window.innerHeight);
 });
 
-// Clear the screen.
-cleanBtn.addEventListener('click', () => sketch.clean());
+cleanBtn.addEventListener('click', clearAll);
 window.addEventListener('keydown', (e) => {
-  if (e.key === 'c' || e.key === 'C') sketch.clean();
+  if (e.key === 'c' || e.key === 'C') clearAll();
 });
 
 const tracking = new HandTracking(video);
 
 function trackLoop() {
-  const landmarks = tracking.detect(performance.now());
-  if (landmarks) {
-    const thumb = landmarks[THUMB_TIP];
-    const index = landmarks[INDEX_TIP];
-    const { justPinched } = pinch.update(thumb, index);
-    if (justPinched) {
-      // Midpoint of the two fingertips, mirrored to match the selfie view.
-      const nx = mirrorX((thumb.x + index.x) / 2);
-      const ny = (thumb.y + index.y) / 2;
-      sketch.plant(nx, ny);
+  const hands = tracking.detect(performance.now());
+  const h = heart.update(hands);
+
+  if (h.justFormed && !heartActive) {
+    startHeart(h.center, h.size);
+  } else if (!heartActive && !h.isHeart) {
+    // Single-hand pinch -> plant one flower.
+    const hand0 = hands && hands[0];
+    if (hand0) {
+      const thumb = hand0[THUMB_TIP];
+      const index = hand0[INDEX_TIP];
+      const { justPinched } = pinch.update(thumb, index);
+      if (justPinched) {
+        const nx = mirrorX((thumb.x + index.x) / 2);
+        const ny = (thumb.y + index.y) / 2;
+        sketch.plant(nx, ny);
+      }
+    } else {
+      pinch.update(null, null);
     }
   } else {
+    // While a heart is forming (or held), don't also fire the pinch.
     pinch.update(null, null);
   }
+
   requestAnimationFrame(trackLoop);
 }
 
@@ -52,8 +111,8 @@ async function main() {
     statusEl.textContent = 'Loading camera + hand model…';
     await tracking.init();
     statusEl.textContent =
-      'Pinch thumb + index to plant a flower. Press C to clear.';
-    setTimeout(() => { statusEl.style.opacity = '0'; }, 5000);
+      'Pinch to plant a flower • two-hand 🫶 to bloom a heart • C to clear.';
+    setTimeout(() => { statusEl.style.opacity = '0'; }, 6000);
     trackLoop();
   } catch (err) {
     console.error(err);
