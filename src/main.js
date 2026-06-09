@@ -113,20 +113,72 @@ function trackLoop() {
   requestAnimationFrame(trackLoop);
 }
 
+const GESTURE_MSG = 'Pinch 🤏 to plant a flower • two-hand 🫶 to bloom a heart • C to clear.';
+const NOCAM_MSG = 'Camera off — click anywhere to plant a flower • C to clear.';
+
 let cameraOn = false;
 let loopRunning = false;
 
+/* ── Landing-page demo: bloom random flowers in the margins beside the card
+   while the intro is open. A steady per-frame fade keeps ~DEMO_MAX_FLOWERS
+   alive at once — new ones appear while the oldest quietly fade out (a soft
+   cap, not a hard integer count). Cleared when the visitor picks a mode. */
+const DEMO_MAX_FLOWERS = 10;
+const DEMO_PLANT_INTERVAL = 800; // ms between demo flowers
+const DEMO_LIFETIME_S = (DEMO_MAX_FLOWERS * DEMO_PLANT_INTERVAL) / 1000;
+// Per-frame fade so a flower is ~gone after DEMO_MAX_FLOWERS newer ones appear.
+const DEMO_FADE = Math.pow(0.05, 1 / (DEMO_LIFETIME_S * 60));
+
+let demoTimer = null;
+
+// A random point in the empty columns to the left/right of the centered card.
+function marginPoint() {
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const cardHalf = Math.min(500, vw * 0.9) / 2;
+  const gap = 56;
+  const regions = [];
+  const leftMax = vw / 2 - cardHalf - gap;
+  const rightMin = vw / 2 + cardHalf + gap;
+  if (leftMax > 80) regions.push([24, leftMax]);
+  if (vw - rightMin > 80) regions.push([rightMin, vw - 24]);
+  if (regions.length === 0) return null; // too narrow — no room beside the card
+  const [lo, hi] = regions[(Math.random() * regions.length) | 0];
+  const px = lo + Math.random() * (hi - lo);
+  const py = (0.12 + Math.random() * 0.74) * vh;
+  return { x: px / vw, y: py / vh };
+}
+
+function startDemo() {
+  if (demoTimer) return;
+  sketch.fade = DEMO_FADE;
+  const tick = () => { const p = marginPoint(); if (p) sketch.plant(p.x, p.y); };
+  tick(); // bloom the first one right away
+  demoTimer = setInterval(tick, DEMO_PLANT_INTERVAL);
+}
+
+function stopDemo() {
+  if (demoTimer) { clearInterval(demoTimer); demoTimer = null; }
+  sketch.fade = 1; // flowers persist again during the real session
+}
+
 // The camera is only touched after the visitor opts in from the intro screen.
 async function startWithCamera() {
+  stopDemo();
   introEl.classList.add('hidden');
   modeBtn.classList.remove('hidden');
-  if (cameraOn) return; // already running (re-chosen from the intro)
+  if (cameraOn) {                 // resuming an existing session
+    statusEl.textContent = GESTURE_MSG;
+    loopRunning = true;
+    trackLoop();
+    return;
+  }
+  sketch.clean();                 // clear the demo flowers for a fresh start
   try {
     statusEl.textContent = 'Loading camera + hand model…';
     await tracking.init();
     cameraOn = true;
-    statusEl.textContent =
-      'Pinch 🤏 to plant a flower • two-hand 🫶 to bloom a heart • C to clear.';
+    statusEl.textContent = GESTURE_MSG;
     loopRunning = true;
     trackLoop();
   } catch (err) {
@@ -138,18 +190,26 @@ async function startWithCamera() {
 }
 
 function startWithoutCamera() {
+  stopDemo();
   introEl.classList.add('hidden');
   modeBtn.classList.remove('hidden');
-  // Turn the camera off if it was running, and stop processing frames.
   loopRunning = false;
-  if (cameraOn) {
+  if (cameraOn) {                 // turn the camera off if it was running
     tracking.stop();
     cameraOn = false;
   }
-  statusEl.textContent = 'Camera off — click anywhere to plant a flower • C to clear.';
+  sketch.clean();                 // clear the demo flowers
+  statusEl.textContent = NOCAM_MSG;
 }
 
 startBtn.addEventListener('click', startWithCamera);
 nocamBtn.addEventListener('click', startWithoutCamera);
-// Reopen the chooser to switch between camera / no-camera.
-modeBtn.addEventListener('click', () => introEl.classList.remove('hidden'));
+// Reopen the chooser to switch modes; pause gestures and resume the demo.
+modeBtn.addEventListener('click', () => {
+  loopRunning = false;
+  introEl.classList.remove('hidden');
+  startDemo();
+});
+
+// The intro is visible on load — start the preview demo immediately.
+startDemo();
