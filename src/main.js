@@ -24,7 +24,9 @@ const sketch = new FlowerSketch(canvas);
 sketch.start();
 
 const pinch = new PinchDetector();
-const heart = new HeartDetector();
+// Require the heart held for ~8 frames so transient / overlapping two-hand
+// detections don't false-trigger.
+const heart = new HeartDetector({ holdFrames: 8 });
 
 // Flowers are planted one-per-interval (the shader grows one flower at a time),
 // so the heart formation blooms point-by-point.
