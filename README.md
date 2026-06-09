@@ -1,5 +1,7 @@
 # Flower Generator
 
+By [@misalships](https://www.misalavinash.com)
+
 Pinch your thumb and index finger together in front of your webcam to plant a
 flower: a stem grows from the bottom of the screen and a procedural flower blooms
 at your pinch point. Flowers accumulate over the live webcam feed; press **C** to

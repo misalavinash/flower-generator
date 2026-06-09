@@ -113,8 +113,8 @@ async function main() {
     statusEl.textContent = 'Loading camera + hand model…';
     await tracking.init();
     statusEl.textContent =
-      'Pinch to plant a flower • two-hand 🫶 to bloom a heart • C to clear.';
-    setTimeout(() => { statusEl.style.opacity = '0'; }, 6000);
+      'Pinch 🤏 to plant a flower • two-hand 🫶 to bloom a heart • C to clear.';
+    
     trackLoop();
   } catch (err) {
     console.error(err);
