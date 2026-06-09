@@ -168,13 +168,13 @@ async function startWithCamera() {
   introEl.classList.add('hidden');
   modeBtn.classList.remove('hidden');
   statusEl.classList.remove('hidden');
+  sketch.clean();                 // any option clears the landing-page flowers
   if (cameraOn) {                 // resuming an existing session
     statusEl.textContent = GESTURE_MSG;
     loopRunning = true;
     trackLoop();
     return;
   }
-  sketch.clean();                 // clear the demo flowers for a fresh start
   try {
     statusEl.textContent = 'Loading camera + hand model…';
     await tracking.init();

@@ -32,7 +32,7 @@ export class FlowerSketch {
         // Start past the bloom window (>1) so no flower is drawn until the
         // first plant resets this to 0. Otherwise a flower blooms at the
         // default centered cursor on page load.
-        u_stop_time: { value: 10 },
+        u_stop_time: { value: 8 },
         u_stop_randomizer: {
           value: new THREE.Vector2(Math.random(), Math.random()),
         },
@@ -77,8 +77,12 @@ export class FlowerSketch {
     this.pointer.clicked = true;
   }
 
-  // Fade the whole canvas out for a frame, clearing all flowers.
+  // Clear all flowers. Cancels any pending plant and freezes an in-progress
+  // flower (pushes its timer past the bloom window) so nothing re-appears
+  // after the one-frame wipe, then blanks the feedback buffer.
   clean() {
+    this.pointer.clicked = false;
+    this.shaderMaterial.uniforms.u_stop_time.value = 8; // past the bloom window
     this.pointer.vanishCanvas = true;
     setTimeout(() => { this.pointer.vanishCanvas = false; }, 50);
   }
