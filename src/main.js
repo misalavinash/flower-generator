@@ -122,7 +122,7 @@ let loopRunning = false;
 /* ── Landing-page demo: bloom flowers in the empty margins beside the card
    while the intro is open. Flowers accumulate (crisp, no fade) up to
    DEMO_MAX_FLOWERS, then planting stops. Cleared when the visitor picks a mode. */
-const DEMO_MAX_FLOWERS = 10;
+const DEMO_MAX_FLOWERS = 35;
 const DEMO_PLANT_INTERVAL = 800; // ms between demo flowers
 
 let demoTimer = null;

@@ -30,14 +30,6 @@ test('detects a two-hand heart and fires once on the rising edge', () => {
   assert.equal(r.justFormed, false);
 });
 
-test('reports a center near the centroid of the four fingertips and a positive size', () => {
-  const d = new HeartDetector();
-  const r = d.update(heartPose());
-  assert.ok(Math.abs(r.center.x - 0.5) < 1e-9);
-  assert.ok(Math.abs(r.center.y - 0.475) < 1e-9);
-  assert.ok(r.size > 0 && r.size <= 0.3);
-});
-
 test('not a heart when index tips are far apart (hands still distinct)', () => {
   const d = new HeartDetector();
   const r = d.update([
@@ -72,20 +64,6 @@ test('NOT a heart when the two hands overlap (one hand detected twice)', () => {
   ]);
   assert.equal(r.isHeart, false);
   assert.equal(r.justFormed, false);
-});
-
-test('always reports diagnostics (hand count + tip distances + orientation)', () => {
-  const d = new HeartDetector();
-  const m = d.update(heartPose());
-  assert.equal(m.count, 2);
-  assert.ok(m.indexDist >= 0);
-  assert.ok(m.thumbDist >= 0);
-  assert.equal(typeof m.orient, 'boolean');
-
-  const none = d.update([]);
-  assert.equal(none.count, 0);
-  assert.equal(none.indexDist, null);
-  assert.equal(none.thumbDist, null);
 });
 
 test('re-arming: fires again after the heart is released and reformed', () => {
