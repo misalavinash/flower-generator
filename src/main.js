@@ -11,14 +11,14 @@ const INDEX_TIP = 8;
 const HEART_FLOWER_COUNT = 16;     // flowers around the heart outline
 const HEART_PLANT_INTERVAL = 380;  // ms between flowers (each needs time to bloom)
 const CLEAN_DELAY = 90;            // ms to wait after clean() before planting
+const HEART_SIZE = 0.3;            // half-extent of the heart (normalized)
+const HEART_CX = 0.5;              // centered on screen
+const HEART_CY = 0.5;
 
 const canvas = document.getElementById('canvas');
 const video = document.getElementById('cam');
 const statusEl = document.getElementById('status');
 const cleanBtn = document.querySelector('.clean-btn');
-const debugEl = document.getElementById('debug');
-
-const fmt = (v) => (v === null || v === undefined ? '—' : v.toFixed(3));
 
 const sketch = new FlowerSketch(canvas);
 sketch.start();
@@ -46,16 +46,13 @@ function pumpQueue() {
 }
 requestAnimationFrame(pumpQueue);
 
-function startHeart(centerRaw, size) {
+function startHeart() {
   heartActive = true;
   sketch.clean(); // wipe every other flower first
-  // Mirror x to match the selfie view; the heart sits where the hands are.
-  const cx = mirrorX(centerRaw.x);
-  const cy = centerRaw.y;
   // Begin planting just after the clean wipe so the first flowers aren't erased.
   setTimeout(() => {
     lastPlantTime = 0; // plant the first one immediately
-    for (const p of heartPoints(cx, cy, size, HEART_FLOWER_COUNT)) {
+    for (const p of heartPoints(HEART_CX, HEART_CY, HEART_SIZE, HEART_FLOWER_COUNT)) {
       plantQueue.push(p);
     }
   }, CLEAN_DELAY);
@@ -80,23 +77,12 @@ window.addEventListener('keydown', (e) => {
 
 const tracking = new HandTracking(video);
 
-function updateDebug(h) {
-  const thr = heart.indexThreshold;
-  debugEl.textContent =
-    `hands:  ${h.count}\n` +
-    `indexΔ: ${fmt(h.indexDist)}  (< ${thr} ${h.indexDist !== null && h.indexDist < thr ? '✓' : '✗'})\n` +
-    `thumbΔ: ${fmt(h.thumbDist)}  (< ${heart.thumbThreshold} ${h.thumbDist !== null && h.thumbDist < heart.thumbThreshold ? '✓' : '✗'})\n` +
-    `orient: ${h.orient ? '✓' : '✗'}\n` +
-    `HEART:  ${h.isHeart ? 'YES' : 'no'}`;
-}
-
 function trackLoop() {
   const hands = tracking.detect(performance.now());
   const h = heart.update(hands);
-  updateDebug(h);
 
   if (h.justFormed && !heartActive) {
-    startHeart(h.center, h.size);
+    startHeart();
   } else if (!heartActive && !h.isHeart) {
     // Single-hand pinch -> plant one flower.
     const hand0 = hands && hands[0];
