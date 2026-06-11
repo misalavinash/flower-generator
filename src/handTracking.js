@@ -26,7 +26,10 @@ export class HandTracking {
       });
     }
 
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    // Prefer the front camera on phones (falls back to any camera on desktop).
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user' },
+    });
     this.video.srcObject = stream;
     await this.video.play();
   }

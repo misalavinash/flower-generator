@@ -128,8 +128,10 @@ const DEMO_PLANT_INTERVAL = 800; // ms between demo flowers
 let demoTimer = null;
 let demoCount = 0;
 
-// A random point in the empty columns to the left/right of the centered card.
-function marginPoint() {
+// Where to bloom a demo flower: in the empty columns beside the card on wide
+// screens, or across the full background on narrow screens (mobile), where the
+// margins are too thin — there the flowers show behind/around the glass card.
+function demoPoint() {
   const vw = window.innerWidth;
   const vh = window.innerHeight;
   const cardHalf = Math.min(500, vw * 0.9) / 2;
@@ -139,9 +141,13 @@ function marginPoint() {
   const rightMin = vw / 2 + cardHalf + gap;
   if (leftMax > 80) regions.push([24, leftMax]);
   if (vw - rightMin > 80) regions.push([rightMin, vw - 24]);
-  if (regions.length === 0) return null; // too narrow — no room beside the card
-  const [lo, hi] = regions[(Math.random() * regions.length) | 0];
-  const px = lo + Math.random() * (hi - lo);
+  let px;
+  if (regions.length > 0) {
+    const [lo, hi] = regions[(Math.random() * regions.length) | 0];
+    px = lo + Math.random() * (hi - lo);
+  } else {
+    px = vw * (0.06 + Math.random() * 0.88); // narrow: bloom across the whole width
+  }
   const py = (0.12 + Math.random() * 0.74) * vh;
   return { x: px / vw, y: py / vh };
 }
@@ -151,7 +157,7 @@ function startDemo() {
   demoCount = 0;
   const tick = () => {
     if (demoCount >= DEMO_MAX_FLOWERS) { stopDemo(); return; } // cap reached
-    const p = marginPoint();
+    const p = demoPoint();
     if (p) { sketch.plant(p.x, p.y); demoCount += 1; }
   };
   tick(); // bloom the first one right away
